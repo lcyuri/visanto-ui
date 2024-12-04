@@ -1,0 +1,21 @@
+.visanto-select {
+  position: relative;
+}
+
+.visanto-select-label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #6e6e73;
+  transition: top 0.4s ease, font-size 0.4s ease;
+  pointer-events: none;
+  padding: 1rem;
+}
+
+.visanto-select.focused .visanto-select-label,
+.visanto-select .visanto-select-label {
+  top: 20px;
+  font-size: 11px;
+}

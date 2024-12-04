@@ -1,0 +1,33 @@
+.success-alert {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  justify-content: space-between;
+  display: flex;
+}
+
+.warning-alert {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  justify-content: space-between;
+  display: flex;
+}
+
+.error-alert {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  justify-content: space-between;
+  display: flex;
+}
+
+.altert-close-buton {
+  cursor: pointer;
+}

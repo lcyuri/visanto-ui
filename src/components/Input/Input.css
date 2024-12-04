@@ -1,0 +1,36 @@
+.visanto-input {
+  position: relative;
+  margin: 16px 0;
+}
+
+.visanto-input-label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #6e6e73;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  padding: 1rem;
+}
+
+.visanto-input>input {
+  width: 100%;
+  height: 36px;
+  border: 1.5px solid #86868b;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  background: transparent;
+  padding: 1rem 0 0 1rem;
+}
+
+.visanto-input>input:focus {
+  border-color: #5664f5;
+}
+
+.focused .visanto-input-label {
+  top: 20px;
+  font-size: 11px;
+}

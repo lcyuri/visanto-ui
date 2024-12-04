@@ -1,0 +1,70 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table, th, td {
+  padding: 20px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+table tr {
+  background-color: white;
+}
+
+table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+thead {
+  text-align: left;
+}
+
+tbody {
+  color: #3D3D3D;
+}
+
+table tr:hover {
+  background-color: #e0e0ff;
+}
+
+.action-icons {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.action-icons > *:not(:last-child) {
+  margin-right: 15px;
+}
+
+tr:hover .action-icons {
+  opacity: 1;
+}
+
+.delete-icon {
+  color: red;
+  cursor: pointer;
+}
+
+.edit-icon {
+  color: #5664f5;
+  cursor: pointer;
+}
+
+.table-pagination {
+  display: flex;
+  justify-content: end;
+  margin-top: 30px;
+  align-items: center;
+}
+
+.table-pagination-icon {
+  display: flex;
+  gap: 20px;
+  width: 30px;
+  height: 15px;
+  cursor: pointer;
+}

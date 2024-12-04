@@ -1,0 +1,40 @@
+.signup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-container {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 50px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  margin-top: 100px;
+  width: 400px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ececec;
+  margin: 20px auto;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+}
+
+.signup-birthday-group > label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.signup-birthday-group > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.signup-birthday-group > div > span {
+  width: 130px;
+}
