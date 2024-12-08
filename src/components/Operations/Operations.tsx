@@ -8,17 +8,18 @@ import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../Modal/Modal';
 import Search from '../Search/Search';
 import Alert from '../Alert/Alert';
-import { getWalletByUserID } from '../../services/walletService';
+import { getUserWallets } from '../../services/walletService';
 import Button from '../Button/Button';
 import { Operation, OperationFormData } from '../../models/operations';
 import { OPERATION_HEADERS } from '../../constants/component-constants';
-import { handleOperationForFormData, handleStocksForSelect, handleWalletsForSelect } from '../../utils/operationUtils';
+import { handleOperationForFormData, handleStocksForSelect } from '../../utils/operationUtils';
 import OperationForm from '../OperationForm/OperationForm';
-import { Wallet } from '../../models/wallet';
+import { UserWallet } from '../../models/wallet';
 import { AlerProps, OperationsProps } from '../../models/component';
+import { handleDataForSelect } from '../../utils/componentUtils';
 
 const Operations: React.FC<OperationsProps> = ({ userID }) => {
-  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [userWallets, setUserWallets] = useState<UserWallet[]>([]);
   const [operations, setOperations] = useState<Operation[]>([]);
   const [tableData, setTableData] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,11 +35,11 @@ const Operations: React.FC<OperationsProps> = ({ userID }) => {
   const getOperations = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const walletList = await getWalletByUserID(userID);
-      setWallets(walletList);
+      const list = await getUserWallets(userID);
+      setUserWallets(list);
       const flattenedOperations = (
         await Promise.all(
-          walletList.map((wallet: any) => getOperationByWalletID(wallet.id))
+          list.map((wallet: any) => getOperationByWalletID(wallet.id))
         )
       ).flat().filter(Boolean);
       setOperations(flattenedOperations);
@@ -172,7 +173,7 @@ const Operations: React.FC<OperationsProps> = ({ userID }) => {
                   formData={formData}
                   submit={async (operation: OperationFormData) => await handleSubmit(operation)}
                   stockOptions={handleStocksForSelect(stocks)}
-                  walletOptions={handleWalletsForSelect(wallets)}
+                  walletOptions={handleDataForSelect(userWallets, 'name', 'id')}
                 />
               </Modal>
             }

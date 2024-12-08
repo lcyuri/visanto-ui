@@ -7,7 +7,7 @@ import { TableProps } from '../../models/component';
 const Table: React.FC<TableProps> = ({ data, headers, renderRow, rowsPerPage = 10, height }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const totalPages = data.length === 0 ? 1 : Math.ceil(data.length / rowsPerPage);
   const indexOfLastItem = currentPage * rowsPerPage;
   const indexOfFirstItem = indexOfLastItem - rowsPerPage;
   const currentData = data.slice(indexOfFirstItem, indexOfLastItem);

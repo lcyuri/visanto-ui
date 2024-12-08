@@ -15,6 +15,11 @@
   padding: 1rem;
 }
 
+.visanto-input-icon {
+  margin-right: '100px';
+  font-size: 14px;
+}
+
 .visanto-input>input {
   width: 100%;
   height: 36px;
@@ -33,4 +38,30 @@
 .focused .visanto-input-label {
   top: 20px;
   font-size: 11px;
+}
+
+.focused .visanto-input-icon {
+  font-size: 10px;
+}
+
+.visanto-input.error input {
+  border-color: #e30000;
+  background-color: #f8d7da;
+}
+
+.inline-status {
+  font-size: 12px;
+  margin-top: -9px;
+}
+
+.inline-status.error {
+  color: #e30000;
+}
+
+.inline-status-icon {
+  margin-right: 5px;
+}
+
+.visanto-input svg {
+  margin-right: 8px;
 }

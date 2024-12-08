@@ -6,18 +6,21 @@ import { SearchProps } from '../../models/component';
 
 const Search: React.FC<SearchProps> = ({ search }) => {
   const handleSearch = (event: any): void => {
-    search(event.target.value)
+    search(event.target.value);
   }
 
   return (
     <div className='search'>
-      <FontAwesomeIcon icon={faSearch} className='search-icon' />
       <input
-        className='search-input'
         type='text'
-        placeholder='Pesquisar'
+        id="search-input"
+        placeholder=" " // Para o label funcionar, usamos um placeholder vazio
         onChange={handleSearch}
       />
+      <label htmlFor="search-input" className="search-label">
+        Pesquisar
+      </label>
+      <FontAwesomeIcon icon={faSearch} className='search-icon' />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { User, UserData } from '../models/user';
+import { User, UserBody, UserData, UserFormData } from '../models/user';
 
 export const getUserAdapter = (data: UserData): User => {
   return ({
@@ -8,8 +8,21 @@ export const getUserAdapter = (data: UserData): User => {
     jobTitle: data['users_job_title'],
     birthday: data['users_birth_date'],
     documentNumber: data['users_document_number'],
-    educationLevel: data['users_education_level'],
+    education: data['users_education_level'],
     eamil: data['users_email'],
     password: data['users_password']
   });
 }
+
+export const postUserAdapter = (data: UserFormData): UserBody => {
+  return({
+    'users_email': data.email,
+    'users_password': data.password,
+    'users_name': data.name,
+    'users_birth_date': data.birthday,
+    'users_document_number': data.documentNumber,
+    'users_job_title': data.jobTitle,
+    'users_education_level': data.education,
+    'users_role': 'client'
+  });
+} 

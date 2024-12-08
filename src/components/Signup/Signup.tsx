@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import './Signup.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import Input from '../Input/Input';
-import ReactSelect, { ActionMeta, SingleValue } from 'react-select';
-import { SelectOption } from '../../models/component';
+import { ActionMeta } from 'react-select';
+import { AlerProps, SelectOption } from '../../models/component';
 import Select from '../Select/Select';
 import ReactInputMask from 'react-input-mask';
+import Button from '../Button/Button';
+import { postUser } from '../../services/userService';
+import Alert from '../Alert/Alert';
 
 const Signup: React.FC = ({ }) => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmedPassword, setConfirmedPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [name, setName] = useState('');
   const [selectedDay, setSelectedDay] = useState<SelectOption | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<SelectOption | null>(null);
   const [selectedYear, setSelectedYear] = useState<SelectOption | null>(null);
-
-  const [document, setDocument] = useState<string>('');  // Set document as string
-  const [job, setJob] = useState('');
+  const [documentNumber, setDocumentNumber] = useState<string>('');
+  const [jobTitle, setJobTitle] = useState('');
   const [selectedEducation, setSelectedEducation] = useState<SelectOption | null>(null);
+  const [alert, setAlert] = useState<AlerProps | null>(null);
 
   const setDayOptions = (): SelectOption[] => {
     return Array.from({ length: 31 }, (_, index) => ({
@@ -70,38 +75,97 @@ const Signup: React.FC = ({ }) => {
     setSelectedEducation(newValue as SelectOption);
   };
 
-  const handleSubmit = () => {
-    console.log('---> handleSubmit: ', handleSubmit);
+  const handleSubmit = async (): Promise<void> => {
+    if (password !== confirmedPassword) {
+      setPasswordError(true);
+    } else {
+      setPasswordError(false);
+    }
+
+    try {
+      await postUser({
+        email,
+        password,
+        name,
+        birthday: setBirthday(),
+        documentNumber,
+        jobTitle,
+        education: selectedEducation?.value
+      });
+    } catch (error) {
+      console.error('handleSubmit - ', error);
+      setAlert({
+        message: 'Erro ao cadastrar usuário.',
+        status: 'error',
+      });
+    }
   };
+
+  const setBirthday = (): string => {
+    const year = Number(selectedYear!.value);
+    const month = Number(selectedMonth!.value) - 1;
+    const day = Number(selectedDay!.value);
+    const date = new Date(year, month, day);
+    return date.toISOString();
+  }
+
+  const isFormValid =
+    email &&
+    password &&
+    confirmedPassword &&
+    name &&
+    selectedDay !== null &&
+    selectedMonth !== null &&
+    selectedYear !== null &&
+    documentNumber &&
+    jobTitle &&
+    selectedEducation !== null;
 
   return (
     <div className='signup'>
       <div className='signup-container'>
-        <div>
-          <Input
-            type='text'
-            label='Nome'
-            value={name}
-            onChange={event => setName(event.target.value)}
-          />
+        <div className='login-header'>
+          <FontAwesomeIcon className='login-header-icon' icon={faChartLine} />
+          Visanto
         </div>
-        <div>
-          <Input
-            type='email'
-            label='Email'
-            value={email}
-            onChange={event => setEmail(event.target.value)}
-          />
-        </div>
-        <div>
-          <Input
-            type='password'
-            label='Senha'
-            value={password}
-            onChange={event => setPassword(event.target.value)}
-          />
-        </div>
+        {alert && (<Alert status={alert.status} message={alert.message} hasClose/>)}
+        <Input
+          type='email'
+          label='Email'
+          value={email}
+          onChange={event => setEmail(event.target.value)}
+        />
+        <Input
+          type='password'
+          label='Senha'
+          value={password}
+          onChange={event => setPassword(event.target.value)}
+        />
+        <Input
+          type='password'
+          label='Comfirmar senha'
+          value={confirmedPassword}
+          onChange={event => setConfirmedPassword(event.target.value)}
+          status={passwordError ? 'error' : undefined}
+          inlineMessage={passwordError ? 'As senhas não coincidem. Tente novamente.' : undefined}
+        />
         <hr />
+        <Input
+          type='text'
+          label='Nome'
+          value={name}
+          onChange={event => setName(event.target.value)}
+        />
+        <ReactInputMask
+          mask='999.999.999-99'
+          value={documentNumber}
+          onChange={e => setDocumentNumber(e.target.value)}
+          id='cpf'
+        >
+          {(inputProps: React.InputHTMLAttributes<HTMLInputElement>) => (
+            <Input {...inputProps} label='CPF' />
+          )}
+        </ReactInputMask>
         <div className='signup-birthday-group'>
           <label>Data de nascimento</label>
           <div>
@@ -134,40 +198,35 @@ const Signup: React.FC = ({ }) => {
             </span>
           </div>
         </div>
-        <div>
-          <ReactInputMask
-            mask="999.999.999-99"
-            value={document}
-            onChange={e => setDocument(e.target.value)}
-            id="cpf"
-          >
-            {(inputProps: React.InputHTMLAttributes<HTMLInputElement>) => (
-              <Input {...inputProps} label='CPF' />
-            )}
-          </ReactInputMask>
+        <Input
+          type='text'
+          label='Profissão'
+          value={jobTitle}
+          onChange={event => setJobTitle(event.target.value)}
+        />
+        <div className='signup-education'>
+          <Select
+            options={setEducationOptions()}
+            value={selectedEducation}
+            placeholder='Escolaridade'
+            onChange={handleEducationChange}
+          />
         </div>
-        <hr />
-        <div>
-          <div>
-            <Input
-              type='text'  // Corrected type
-              label='Profissão'
-              value={job}
-              onChange={event => setJob(event.target.value)}
-            />
-          </div>
-          <div>
-            <Select
-              options={setEducationOptions()}
-              value={selectedEducation}
-              placeholder='Escolaridade'
-              onChange={handleEducationChange}
-            />
-          </div>
+        <div className='signup-footer'>
+          <Button
+            type='submit'
+            label='Cadastrar'
+            width={170}
+            height={46}
+            disabled={!isFormValid}
+            click={handleSubmit}
+          />
+          <Link className='signup-link' to='/login'>Já tem uma conta?</Link>
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Signup;

@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import Operations from '../Operations/Operations';
 import Login from '../Login/Login';
-import Wallet from '../Wallet/Wallet';
+import WalletComponent from '../Wallet/Wallet';
 import { Link, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faUser } from '@fortawesome/free-solid-svg-icons';
@@ -57,7 +57,7 @@ const App: React.FC = () => {
         <Route path='/signup' element={<Signup />} />
         {user && (
           <>
-            <Route path='/wallet' element={<Wallet userID={user.id} />} />
+            <Route path='/wallet' element={<WalletComponent userID={user.id} />} />
             <Route path='/operations' element={<Operations userID={user.id}/>} />
           </>
         )}

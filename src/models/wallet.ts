@@ -1,4 +1,4 @@
-export interface WalletInfoData {
+export interface UserWalletData {
   'portfolios_id': number;
   'portfolios_name': string;
   'portfolios_users_fk': number;
@@ -7,7 +7,7 @@ export interface WalletInfoData {
   'advisor_name': string;
 }
 
-export interface WalletInfo {
+export interface UserWallet {
   id: number;
   name: string;
   userFK: number;
@@ -48,5 +48,13 @@ export interface Wallet {
 }
 
 export interface WalletFormData {
-  walletName: string
+  walletName: string;
+  userFK?: number | string;
+  advisorFK?: number;
+}
+
+export interface WalletBody {
+  'portfolios_name': string,
+  'portfolios_users_fk'?: string | number,
+  'portfolios_advisor_fk'?: string | number,
 }

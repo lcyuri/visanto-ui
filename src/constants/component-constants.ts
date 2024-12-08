@@ -12,14 +12,14 @@ export const OPERATION_HEADERS = [
 
 export const WALLET_HEADERS = [
   'Ativo',
-  'Risco (%)',
+  'Risco',
   'Preço Médio',
   'Preço Atual',
   'Quantidade',
   'Custo',
   'Valor',
   'Lucro',
-  'Rendimento (%)',
+  'Rendimento',
   'Peso do Ativo'
 ];
 

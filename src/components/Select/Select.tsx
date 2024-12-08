@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
-import './Select.css'
+import React from 'react';
+import './Select.css';
 import ReactSelect, { Props } from 'react-select';
+import { SelectOption } from '../../models/component';
 
-const Select: React.FC<Props> = ({ options, onChange, isSearchable, value, placeholder }) => {
-  const [isFocused, setIsFocused] = useState(false);
+interface SelectProps extends Props {
+  height?: string | number;
+  width?: string | number;
+  value: SelectOption | null
+}
+
+const Select: React.FC<SelectProps> = ({
+  options,
+  onChange,
+  isSearchable,
+  value,
+  placeholder,
+  noOptionsMessage,
+  onInputChange,
+  height = '55px',
+  width = '100%'
+}) => {
   const customStyles = {
     control: (provided: any, state: any) => ({
       ...provided,
-      window: '100%',
-      height: '55px',
+      width: width,
+      height: height,
       border: state.isFocused ? '1.5px solid #5664f5' : '1.5px solid #86868b',
       borderRadius: '6px',
       fontSize: '16px',
@@ -37,9 +53,10 @@ const Select: React.FC<Props> = ({ options, onChange, isSearchable, value, place
       color: '#86868b',
     }),
   };
+
   return (
-    <div className={`visanto-select ${value ? 'focused' : ''}`}>
-      {value as string | number && (
+    <div className={'visanto-select'}>
+      {value && (
         <label className={`visanto-select-label`}>{placeholder}</label>
       )}
       <ReactSelect
@@ -49,8 +66,9 @@ const Select: React.FC<Props> = ({ options, onChange, isSearchable, value, place
         isSearchable={isSearchable}
         placeholder={placeholder}
         styles={customStyles}
-        onFocus={() => setIsFocused(true)}
         components={{ IndicatorSeparator: null }}
+        noOptionsMessage={noOptionsMessage}
+        onInputChange={onInputChange}
       />
     </div>
   );

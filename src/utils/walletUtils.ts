@@ -1,6 +1,6 @@
-import { Wallet, WalletData, WalletInfo, WalletInfoData } from '../models/wallet';
+import { Wallet, WalletBody, WalletData, WalletFormData, UserWalletData, UserWallet } from '../models/wallet';
 
-export const getWalletByUserIDAdapter = (data: WalletInfoData[]): WalletInfo[] => {
+export const getUserWalletsAdapter = (data: UserWalletData[]): UserWallet[] => {
   return data.map(item => ({
     id: item['portfolios_id'],
     name: item['portfolios_name'],
@@ -24,4 +24,12 @@ export const getWalletByIdAdapter = (data: WalletData[]): Wallet[] => {
     percentProfitLoss: item['percent_profit_loss'],
     stockValuePercentage: item['action_value_percentage']
   }));
+};
+
+export const postWalletAdapter = (data: WalletFormData): WalletBody => {
+  return ({
+    'portfolios_name': data.walletName,
+    'portfolios_users_fk': data?.userFK,
+    'portfolios_advisor_fk': data?.advisorFK,
+  });
 };

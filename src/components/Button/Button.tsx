@@ -17,7 +17,7 @@ const Button: React.FC<ButtonProps> = ({ label, width, height, click, disabled, 
       type={type}
       style={{ 
         width: `${width}px`,
-        height: `${width}px`
+        height: `${height}px`
       }}
     >
       {label}
