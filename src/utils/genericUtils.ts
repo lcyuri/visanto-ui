@@ -27,4 +27,8 @@ export const isEmptyString = (string: string): boolean => {
 
 export const isEmptyArray = <T>(data: T[]): boolean => {
   return data.length === 0;
-}
+};
+
+export const removeArrayItem = <T>(data: T[], field: keyof T, value: any): T[] => {
+  return data.filter(item => item[field] !== value);
+};

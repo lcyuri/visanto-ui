@@ -214,12 +214,9 @@ const Signup: React.FC = ({ }) => {
         </div>
         <div className='signup-footer'>
           <Button
-            type='submit'
             label='Cadastrar'
-            width={170}
-            height={46}
             disabled={!isFormValid}
-            click={handleSubmit}
+            onClick={handleSubmit}
           />
           <Link className='signup-link' to='/login'>Já tem uma conta?</Link>
         </div>

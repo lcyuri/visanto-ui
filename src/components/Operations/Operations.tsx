@@ -1,32 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 import './Operations.css';
 import Table from '../Table/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { deleteOperation, getOperationByWalletID, getStockList, postOperation, putOperation } from '../../services/operationsService';
+import { faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { deleteOperation, getOperationsByUserID, postOperation, putOperation } from '../../services/operationsService';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../Modal/Modal';
-import Search from '../Search/Search';
 import Alert from '../Alert/Alert';
 import { getUserWallets } from '../../services/walletService';
 import Button from '../Button/Button';
-import { Operation, OperationFormData } from '../../models/operations';
+import { Operation, OperationByUserID, OperationFormData, OperationsProps } from '../../models/operations';
 import { OPERATION_HEADERS } from '../../constants/component-constants';
-import { handleOperationForFormData, handleStocksForSelect } from '../../utils/operationUtils';
+import { getSide } from '../../utils/operationUtils';
 import OperationForm from '../OperationForm/OperationForm';
 import { UserWallet } from '../../models/wallet';
-import { AlerProps, OperationsProps } from '../../models/component';
+import { AlerProps, SelectOption } from '../../models/component';
 import { handleDataForSelect } from '../../utils/componentUtils';
+import Input from '../Input/Input';
+import { filterByTerm, isEmptyArray, isEmptyString, removeArrayItem } from '../../utils/genericUtils';
+import { API_LOADING_ERROR, EMPTY_DATA_WARNING, ERROR_ADDING_NEW_OPERATION, OPERATION_DELETED_SUCCESSFULLY, OPERATION_DELITION_ERROR, OPERATION_SELECT_WARNING, OPERATION_UPDATE_ERROR } from '../../constants/messageConstants';
+import Select from '../Select/Select';
+import { ActionMeta } from 'react-select';
 
 const Operations: React.FC<OperationsProps> = ({ userID }) => {
   const [userWallets, setUserWallets] = useState<UserWallet[]>([]);
-  const [operations, setOperations] = useState<Operation[]>([]);
+  const [operations, setOperations] = useState<OperationByUserID[]>([]);
   const [tableData, setTableData] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alert, setAlert] = useState<AlerProps | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<OperationFormData | null>(null);
-  const [stocks, setStocks] = useState<any>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [ownerSelectOptions, setOwnerSelectOptions] = useState<SelectOption[]>([]);
+  const [selectedOwner, setSelectedOwner] = useState<SelectOption | null>(null);
+  const [selectedOperation, setSelectedOperation] = useState<OperationByUserID | undefined>(undefined);
 
   useEffect(() => {
     getOperations();
@@ -35,83 +41,76 @@ const Operations: React.FC<OperationsProps> = ({ userID }) => {
   const getOperations = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const list = await getUserWallets(userID);
-      setUserWallets(list);
-      const flattenedOperations = (
-        await Promise.all(
-          list.map((wallet: any) => getOperationByWalletID(wallet.id))
-        )
-      ).flat().filter(Boolean);
-      setOperations(flattenedOperations);
-      setTableData(flattenedOperations);
-      const stockList = await getStockList();
-      setStocks(stockList);
+      const response = await getUserWallets(userID);
+      setUserWallets(response);
+      setOwnerSelectOptions(handleDataForSelect(response, 'clientName', 'userFK', true));
+      setAlert({ message: OPERATION_SELECT_WARNING, status: 'warning' });
     } catch (error) {
       console.error('fetchData -', error);
-      setAlert({ message: 'Erro ao carregar dados.', status: 'error' });
+      setAlert({ message: API_LOADING_ERROR, status: 'error' });
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const renderRow = (row: any): React.ReactNode => (
+  const renderRow = (row: any): ReactNode => (
     <>
-      <td>{row.stock}</td>
+      <td>{row.stockSymbol}</td>
       <td>R$ {row.price}</td>
       <td>{row.amount}</td>
-      <td>R$ {row.totalPrice}</td>
-      <td>{row.side}</td>
-      <td>{row.risk}%</td>
+      <td>R$ - </td>
+      <td>{getSide(row.side)}</td>
+      <td>{row.defaultRisk}%</td>
       <td>{row.walletName}</td>
       <td>{row.date}</td>
       <td className='action-icons'>
-        <FontAwesomeIcon icon={faPenToSquare} className='edit-icon' onClick={() => handleEdit(row)} />
-        <FontAwesomeIcon icon={faTrash} className='delete-icon' onClick={async () => await handleDelete(row)} />
+        <FontAwesomeIcon icon={faPenToSquare} className='edit-icon' onClick={() => onEdit(row)} />
+        <FontAwesomeIcon icon={faTrash} className='delete-icon' onClick={async () => await onDelete(row)} />
       </td>
     </>
   );
 
-  const handleOpenModal = (): void => {
-    setFormData(null);
+  const onOpenModal = (): void => {
+    setSelectedOperation(undefined);
     setIsModalOpen(true);
-  }
+  };
 
-  const handleCloseModal = (): void => {
+  const onCloseModal = (): void => {
     setIsModalOpen(false);
-  }
+  };
 
-  const handleEdit = (operation: Operation): void => {
-    setFormData(handleOperationForFormData(operation));
+  const onEdit = (operation: OperationByUserID): void => {
+    setSelectedOperation(operation);
     setIsModalOpen(true);
-  }
+  };
 
-  const handleDelete = async (operation: Operation): Promise<void> => {
+  const onDelete = async (operation: Operation): Promise<void> => {
     try {
       setIsLoading(true);
       const deletedOperationId = await deleteOperation(operation.id);
-      const newOperations = operations.filter((operation: any) => operation.id.toString() !== deletedOperationId);
+      const newOperations = removeArrayItem(operations, 'id', deletedOperationId);
       setOperations(newOperations);
       setTableData(newOperations);
       setAlert({
-        message: 'Operação deletada com sucesso.',
+        message: OPERATION_DELETED_SUCCESSFULLY,
         status: 'success',
         hasClose: true
       });
     } catch (error) {
       console.error('handleDelete - ', error);
-      setAlert({  message: 'Erro ao deletar operação.', status: 'error' });
+      setAlert({ message: OPERATION_DELITION_ERROR, status: 'error' });
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const handleSubmit = async (operation: OperationFormData): Promise<void> => {
+  const onSubmitOperationForm = async (operation: OperationFormData): Promise<void> => {
     if (operation.id) {
-      editOperation(operation);
+      await editOperation(operation);
     } else {
-      addOperation(operation);
+      await addOperation(operation);
     }
-  }
+  };
 
   const editOperation = async (operation: OperationFormData): Promise<void> => {
     try {
@@ -119,81 +118,108 @@ const Operations: React.FC<OperationsProps> = ({ userID }) => {
       await getOperations();
     } catch (error) {
       console.error('editOperation - ', error);
-      setAlert({ message: 'Erro ao atualizar ordem.', status: 'error' });
+      setAlert({ message: OPERATION_UPDATE_ERROR, status: 'error' });
     } finally {
-      handleCloseModal();
+      onCloseModal();
     }
-  }
+  };
 
   const addOperation = async (operation: OperationFormData): Promise<void> => {
     try {
       await postOperation(operation);
-      handleCloseModal();
+      onCloseModal();
       await getOperations();
     } catch (error) {
       console.error('addOperation - ');
-      setAlert({ message: 'Erro ao adicionar nova ordem.', status: 'error' });
+      setAlert({ message: ERROR_ADDING_NEW_OPERATION, status: 'error' });
     }
-  }
+  };
 
-  const handleSearch = (term: string): void => {
-    if (term.trim() === '') {
+  const onSearchOperations = (term: string): void => {
+    setSearchTerm(term);
+    if (isEmptyString(term)) {
       setTableData(operations);
       setAlert(null);
     } else {
-      const result = operations.filter((item: any) =>
-        Object.values(item).some((value: any) =>
-          value.toString().toLowerCase().includes(term.toLowerCase())
-        )
-      );
-      if (result.length === 0) {
-        setAlert({ message: 'Nenhum dado disponível.', status: 'warning' });
+      const result = filterByTerm(operations, term);
+      if (isEmptyArray(result)) {
+        setAlert({ message: EMPTY_DATA_WARNING, status: 'warning' });
       } else {
         setAlert(null);
       }
       setTableData(result);
     }
-  }
+  };
+
+  const onOwnerSelectChange = async (newValue: unknown, _actionMeta: ActionMeta<unknown>): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const option = newValue as SelectOption;
+      setSelectedOwner(option);
+      const response = await getOperationsByUserID(option.value.toString());
+      setOperations(response);
+      setTableData(response);
+      setAlert(null);
+    } catch (error) {
+      console.error('onOwnerSelectChange - ', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className='operations'>
       <div className='operations-box'>
         <div className='operations-actions'>
-          <Search search={handleSearch} />
-          <span>
-            <Button
-              label='Adicionar'
-              width={110}
-              height={39}
-              click={handleOpenModal}
+          <span className='operations-search'>
+            <Input
+              type='text'
+              label='Pesquisar'
+              onChange={event => onSearchOperations(event.target.value)}
+              value={searchTerm}
+              icon={faSearch}
             />
-            {isModalOpen &&
-              <Modal title='Nova Ordem' onClose={handleCloseModal}>
-                <OperationForm
-                  formData={formData}
-                  submit={async (operation: OperationFormData) => await handleSubmit(operation)}
-                  stockOptions={handleStocksForSelect(stocks)}
-                  walletOptions={handleDataForSelect(userWallets, 'name', 'id')}
-                />
-              </Modal>
-            }
           </span>
+          <span className='operations-select'>
+            <Select
+              placeholder='Proprietário'
+              options={ownerSelectOptions}
+              value={selectedOwner}
+              onChange={onOwnerSelectChange}
+              isSearchable={false}
+            />
+          </span>
+          <span className='operations-button'>
+            <Button label='Adicionar' onClick={onOpenModal} />
+          </span>
+          {isModalOpen &&
+            <Modal title='Nova Ordem' onClose={onCloseModal}>
+              <OperationForm
+                operation={selectedOperation}
+                onwerSelectOptions={ownerSelectOptions}
+                walletSelectOptions={handleDataForSelect(userWallets, 'name', 'id')}
+                onSubmit={onSubmitOperationForm}
+              />
+            </Modal>
+          }
           {isLoading && <FontAwesomeIcon icon={faSpinner} className='loading-spinner' spin />}
         </div>
         {alert && (
-          <Alert
-            status={alert.status}
-            message={alert.message}
-            hasClose={alert?.hasClose}
-            close={() => setAlert(null)}
-          />
+          <div className='operations-alert'>
+            <Alert
+              status={alert.status}
+              message={alert.message}
+              hasClose={alert?.hasClose}
+              close={() => setAlert(null)}
+            />
+          </div>
         )}
         <div className='operations-table'>
           <Table
             data={tableData}
             headers={OPERATION_HEADERS}
             renderRow={renderRow}
-            height={alert ? '576px' : '630px'}
+            height={alert ? '536px' : '590px'}
           />
         </div>
       </div>

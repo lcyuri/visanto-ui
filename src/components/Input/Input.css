@@ -1,6 +1,5 @@
 .visanto-input {
   position: relative;
-  margin: 16px 0;
 }
 
 .visanto-input-label {
@@ -20,7 +19,7 @@
   font-size: 14px;
 }
 
-.visanto-input>input {
+.visanto-input > input {
   width: 100%;
   height: 36px;
   border: 1.5px solid #86868b;

@@ -31,17 +31,6 @@ export interface ModalProps {
   onClose: () => void;
 }
 
-export interface OperationFormProps {
-  formData: OperationFormData| null;
-  stockOptions: SelectOption[];
-  walletOptions: SelectOption[];
-  submit: (operation: OperationFormData) => void;
-}
-
-export interface OperationsProps {
-  userID: number;
-}
-
 export interface SearchProps {
   search: (term: string) => void;
 }

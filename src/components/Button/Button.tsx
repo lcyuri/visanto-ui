@@ -1,25 +1,13 @@
-
 import React from 'react';
 import './Button.css';
-import { ButtonProps } from '../../models/component';
 
-const Button: React.FC<ButtonProps> = ({ label, width, height, click, disabled, type }) => {
-  const handleClick = (): void => {
-    if (click) {
-      click()
-    }
-  }
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  label: string;
+}
 
+const Button: React.FC<ButtonProps> = ({ label, onClick, disabled}) => {
   return (
-    <button
-      className={`button ${disabled ? 'disabled' : ''}`}
-      onClick={handleClick}
-      type={type}
-      style={{ 
-        width: `${width}px`,
-        height: `${height}px`
-      }}
-    >
+    <button className='visanto-button' onClick={onClick} disabled={disabled}>
       {label}
     </button>
   );

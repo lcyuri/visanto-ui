@@ -10,6 +10,7 @@ export const USER = '/api/user';
 // Operation
 export const OPERATION = '/api/order';
 export const OPERATION_BY_WALLET_ID = '/api/order/portfolio/:portfolio_id';
+export const OPERATION_BY_USER_ID = '/api/order/user/:user_id';
 
 // Wallet
 export const WALLET_BY_CLIENT_ID = '/api/portfolio/per-user/:users_id';

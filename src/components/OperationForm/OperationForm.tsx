@@ -1,110 +1,131 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './OperationForm.css';
-import { OperationFormData } from '../../models/operations';
+import { OperationByUserID, OperationFormData } from '../../models/operations';
 import Button from '../Button/Button';
-import { OperationFormProps, SelectOption } from '../../models/component';
-import { setInitialFormData } from '../../utils/operationUtils';
-import { ActionMeta, SelectOptionActionMeta, SingleValue } from 'react-select';
+import { SelectOption } from '../../models/component';
+import { setFormDataFromOperation } from '../../utils/operationUtils';
+import { ActionMeta } from 'react-select';
 import Select from '../Select/Select';
+import { getStockList } from '../../services/operationsService';
+import { handleDataForSelect } from '../../utils/componentUtils';
+import Input from '../Input/Input';
 
-const OperationForm: React.FC<OperationFormProps> = ({ formData, stockOptions, walletOptions, submit }) => {
-  const [formState, setFormState] = useState<OperationFormData>(formData || setInitialFormData());
+export interface OperationFormProps {
+  operation?: OperationByUserID;
+  onwerSelectOptions: SelectOption[];
+  walletSelectOptions: SelectOption[];
+  onSubmit: (operation: OperationFormData) => void;
+};
+
+const OperationForm: React.FC<OperationFormProps> = ({ operation, onwerSelectOptions, walletSelectOptions, onSubmit }) => {
+  const [formData, setFormData] = useState<OperationFormData>(setFormDataFromOperation(operation));
+  const [stockSelectOptions, setStockSelectOptions] = useState<SelectOption[]>([]);
   const [selectedStock, setSelectedStock] = useState<SelectOption | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<SelectOption | null>(null);
   const [selectedWallet, setSelectedWallet] = useState<SelectOption | null>(null);
+  const [selectedType, setSelectedType] = useState<SelectOption | null>(null);
 
-  const handleStockChange = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
-    const option = newValue as SingleValue<SelectOption>;
-    updateFormData('stock', option?.value);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getStockList();
+        setStockSelectOptions(handleDataForSelect(response, 'stock', 'stock'))
+      } catch (error) {
+        console.error('fetchData -', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const onStockSelectChange = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
+    const option = newValue as SelectOption;
+    onChangeFormData('stockSymbol', option.value);
     setSelectedStock(option);
   };
 
-  const handleWalletChange = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
-    const option = newValue as SingleValue<SelectOption>
-    updateFormData('walletId', option?.value);
+  const onChangeOwner = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
+    const option = newValue as SelectOption;
+    onChangeFormData('userFK', option.value);
+    setSelectedStock(option);
+  };
+
+  const onWalletChange = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
+    const option = newValue as SelectOption;
+    onChangeFormData('walletId', option.value);
     setSelectedWallet(option);
   };
 
-  const updateFormData = (key: keyof OperationFormData, value: any): void => {
-    setFormState({ ...formState, [key]: value });
+  const onTypeChange = (newValue: unknown, _actionMeta: ActionMeta<unknown>): void => {
+    const option = newValue as SelectOption;
+    onChangeFormData('side', option.value);
+    setSelectedType(option);
   };
 
-  const handleSubmit = (event: React.FormEvent): void => {
-    event.preventDefault();
-    submit(formState);
+  const onChangeFormData = (key: keyof OperationFormData, value: string | number): void => {
+    setFormData({ ...formData, [key]: value });
   };
 
   return (
-    <form className='form' onSubmit={handleSubmit}>
-      <div className='operation-forn-input-group'>
-        <label>Ativo</label>
+    <div className='operation-form'>
+      <div className='operation-form-select'>
         <Select
-          options={stockOptions}
+          options={stockSelectOptions}
           value={selectedStock}
-          onChange={handleStockChange}
-          placeholder='Selecione um ativo'
+          onChange={onStockSelectChange}
+          placeholder='Ativo'
         />
       </div>
-      <div className='operation-forn-input-group'>
-        <label>Quantidade</label>
-        <input
-          id='amount'
-          name='amount'
+      <div className='operation-form-input'>
+        <Input
+          value={formData.amount}
           type='number'
-          value={formState.amount}
-          required
-          onChange={(event) => updateFormData('amount', event.target.value)}
+          onChange={event => onChangeFormData('amount', event.target.value)}
+          label='Quantide'
         />
       </div>
-      <div className='operation-forn-input-group'>
-        <label>Carteira</label>
+      <div className='operation-form-select'>
         <Select
-          options={walletOptions}
-          value={selectedWallet}
-          onChange={handleWalletChange}
+          options={onwerSelectOptions}
+          value={selectedOwner}
+          onChange={onChangeOwner}
           isSearchable={false}
-          placeholder='Selecione uma carteira'
+          placeholder='Propietário'
         />
       </div>
-      <div className='operation-forn-input-group'>
-        <label>Preço</label>
-        <input
-          id='price'
-          name='price'
+      <div className='operation-form-select'>
+        <Select
+          options={walletSelectOptions}
+          value={selectedWallet}
+          onChange={onWalletChange}
+          isSearchable={false}
+          placeholder='Carteira'
+        />
+      </div>
+      <div className='operation-form-input'>
+        <Input
+          value={formData.price}
           type='number'
-          value={formState.price}
-          required
-          onChange={(event) => updateFormData('price', event.target.value)}
+          onChange={event => onChangeFormData('amount', event.target.value)}
+          label='Preço'
         />
       </div>
-      <div className='radio-group'>
-        <label>Tipo</label>
-        <div>
-          <label>
-            <input
-              type='radio'
-              name='type'
-              value='buy'
-              checked={formState.side === 'buy'}
-              onChange={(event) => updateFormData('side', event.target.value)}
-            />
-            Compra
-          </label>
-          <label>
-            <input
-              type='radio'
-              name='type'
-              value='sell'
-              checked={formState.side === 'sell'}
-              onChange={(event) => updateFormData('side', event.target.value)}
-            />
-            Venda
-          </label>
-        </div>
+      <div className='operation-form-select'>
+        <Select
+          options={[
+            { label: 'Compra', value: 'buy' },
+            { label: 'Venda', value: 'sell' }
+          ]}
+          value={selectedType}
+          onChange={onTypeChange}
+          isSearchable={false}
+          placeholder='Tipo'
+        />
       </div>
       <div className='form-button'>
-        <Button type='submit' label='Salvar' width={170} height={41} />
+        <Button label='Salvar' onClick={() => onSubmit(formData)} />
       </div>
-    </form>
+    </div>
   );
 };
 

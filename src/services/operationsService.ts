@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { HOSTNAME, OPERATION, OPERATION_BY_WALLET_ID, STOCK_LIST } from '../constants/routes';
-import { getOperationsAdapter, getStockListAdapter, postOperationAdapter, putOperationAdapter } from '../adapter/operationsAdapter';
-import { Operation, OperationFormData } from '../models/operations';
+import { HOSTNAME, OPERATION, OPERATION_BY_USER_ID, OPERATION_BY_WALLET_ID, STOCK_LIST } from '../constants/routes';
+import { getOperationsAdapter, getOperationsByUserIDAdapter, getStockListAdapter, postOperationAdapter, putOperationAdapter } from '../utils/operationUtils';
+import { Operation, OperationByUserID, OperationFormData } from '../models/operations';
 
 export const getOperationByWalletID = async (walletID: string): Promise<Operation[] | []> => {
   try {
@@ -63,3 +63,15 @@ export const getStockList = async (): Promise<string[]> => {
     throw error;
   }
 }
+
+export const getOperationsByUserID = async (userID: string): Promise<OperationByUserID[]> => {
+  try {
+    let url = HOSTNAME + OPERATION_BY_USER_ID ;
+    url = url.replace(':user_id', userID);
+    const response = await axios.get(url);
+    return getOperationsByUserIDAdapter(response.data.data);
+  } catch (error) {
+    console.error('getWalletById - ', error);
+    throw error;
+  }
+};

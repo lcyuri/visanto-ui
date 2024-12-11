@@ -1,4 +1,6 @@
-.button {
+.visanto-button {
+  width: 100%;
+  height: 55px;
   background-color: #5664F5;
   color: white;
   border: none;
@@ -8,11 +10,6 @@
   transition: background-color 0.3s ease;
 }
 
-.button:hover {
+.visanto-button:hover {
   background-color: #3f51d8;
-}
-
-.button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

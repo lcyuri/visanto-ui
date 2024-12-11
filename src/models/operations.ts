@@ -1,3 +1,5 @@
+import { SelectOption } from "./component";
+
 export interface OperationData {
   'portfolios_name': string;
   'orders_id': number;
@@ -28,12 +30,13 @@ export interface Operation {
 
 export interface OperationFormData {
   id?: number;
-  stock: string;
+  stockSymbol: string;
   amount: number;
   walletId: number;
-  price: number;
+  price: string;
   side: Side;
   date?: string;
+  userFK: number;
 }
 
 export interface OperationBody {
@@ -43,10 +46,50 @@ export interface OperationBody {
   'orders_stock_symbol': string;
   'orders_quantity': number;
   'orders_date'?: string;
-  'orders_price': number;
+  'orders_price': string;
   'orders_status': string;
 }
 
 export interface StockData {
   'stock_symbol': string;
+}
+
+export interface OperationByUserIDData {
+  'portfolios_id': number;
+  'portfolios_name': string;
+  'portfolios_users_fk': number;
+  'portfolios_advisor_fk': number;
+  'Owner': string;
+  'Advisor': string;
+  'orders_id': number;
+  'orders_side': string;
+  'orders_portfolios_fk': number;
+  'orders_stock_symbol': string;
+  'orders_quantity': number;
+  'orders_price': string;
+  'orders_date': string;
+  'orders_status': string;
+  'default_risk': number;
+}
+
+export interface OperationByUserID {
+  walletId: number;
+  walletName: string;
+  userFK: number;
+  advisorFK: number;
+  ownerName: string;
+  advisorName: string;
+  id: number;
+  side: Side;
+  walletFk: number;
+  stockSymbol: string;
+  amount: number;
+  price: string;
+  date: string;
+  status: string;
+  defaultRisk: number;
+}
+
+export interface OperationsProps {
+  userID: number;
 }
